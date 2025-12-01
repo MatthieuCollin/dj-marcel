@@ -1,14 +1,14 @@
 {
-  "name": "dj-marcel",
+  "name": "dj-marcel-poc",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "POC - DJ Marcel: Gestion des réservations, soirées et playlists",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "body-parser": "^1.20.2"
   }
 }
