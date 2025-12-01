@@ -1,73 +1,141 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DJ Marcel - Ma soir�e</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-    .container { max-width: 600px; margin: 0 auto; }
-    h1 { text-align: center; margin-bottom: 30px; color: #333; }
-    .section { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .section h2 { font-size: 18px; margin-bottom: 20px; color: #666; }
-    input { display: block; width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-    input:focus { outline: none; border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.5); }
-    button { background: #007bff; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 20px; }
-    button:hover { background: #0056b3; }
-    .nav { text-align: center; margin-top: 20px; }
-    .nav a { color: #007bff; text-decoration: none; font-size: 14px; }
-    .nav a:hover { text-decoration: underline; }
-    .message { text-align: center; margin-top: 20px; font-size: 14px; color: #28a745; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DJ Marcel - Ma soirée</title>
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+}
+.section {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+}
+.section h2 { font-size: 1.5em; margin-bottom: 20px; color: #764ba2; }
+input {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+input:focus {
+    outline: none;
+    border-color: #764ba2;
+    box-shadow: 0 0 5px rgba(118,75,162,0.5);
+}
+button {
+    background: #764ba2;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    margin-top: 20px;
+    transition: background 0.3s;
+}
+button:hover { background: #5a3580; }
+.nav { text-align: center; margin-top: 20px; }
+.nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.2);
+    transition: all 0.3s;
+}
+.nav a:hover { background: rgba(255,255,255,0.4); }
+.message {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 5px;
+    display: none;
+}
+.message.success { background: #d4edda; color: #155724; }
+.message.error { background: #f8d7da; color: #721c24; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1> DJ Marcel - Ma soir�e</h1>
+<div class="container">
+<h1>🎵 DJ Marcel - Ma soirée</h1>
 
-    <div class="section">
-      <h2>Cr�er ma soir�e</h2>
-      <input type="text" id="clientName" placeholder="Nom du DJ/Client">
-      <input type="date" id="clientDate">
-      <input type="text" id="clientLocation" placeholder="Lieu">
-      <input type="number" id="clientCapacity" placeholder="Capacit�">
-      <input type="text" id="playlistName" placeholder="Nom de la playlist">
-      <button onclick="createClient()">Cr�er soir�e</button>
-      <div id="message"></div>
-    </div>
+<div class="section">
+<h2>Créer ma soirée</h2>
+<input type="text" id="clientName" placeholder="Nom du DJ/Client">
+<input type="date" id="clientDate">
+<input type="text" id="clientLocation" placeholder="Lieu">
+<input type="number" id="clientCapacity" placeholder="Capacité">
+<input type="text" id="playlistName" placeholder="Nom de la playlist">
+<button onclick="createClient()">Créer soirée</button>
+<div id="message" class="message"></div>
+</div>
 
-    <div class="nav">
-      <a href="/admin"> Acc�s Admin</a>
-    </div>
-  </div>
+<div class="nav">
+<a href="/admin.html">🎧 Accès Admin</a>
+</div>
+</div>
 
-  <script>
-    async function createClient() {
-      const name = document.getElementById("clientName").value;
-      const date = document.getElementById("clientDate").value;
-      const location = document.getElementById("clientLocation").value;
-      const capacity = document.getElementById("clientCapacity").value;
-      const playlistName = document.getElementById("playlistName").value;
-      
-      if (!name || !date || !location || !capacity || !playlistName) 
-        return alert("Compl�tez tous les champs");
-      
-      const res = await fetch("/api/clients", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, date, location, capacity: parseInt(capacity), playlistName })
-      });
-
-      if (res.ok) {
-        document.getElementById("clientName").value = "";
-        document.getElementById("clientDate").value = "";
-        document.getElementById("clientLocation").value = "";
-        document.getElementById("clientCapacity").value = "";
-        document.getElementById("playlistName").value = "";
-        document.getElementById("message").textContent = " Soir�e cr��e avec succ�s !";
-        setTimeout(() => window.location.href = "/admin", 2000);
-      }
+<script>
+async function createClient() {
+    const name = document.getElementById("clientName").value;
+    const date = document.getElementById("clientDate").value;
+    const location = document.getElementById("clientLocation").value;
+    const capacity = document.getElementById("clientCapacity").value;
+    const playlistName = document.getElementById("playlistName").value;
+    if (!name || !date || !location || !capacity || !playlistName) {
+        showMessage("Complétez tous les champs","error");
+        return;
     }
-  </script>
+    const res = await fetch("/api/clients", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ name, date, location, capacity: parseInt(capacity), playlistName })
+    });
+    if (res.ok) {
+        document.getElementById("clientName").value='';
+        document.getElementById("clientDate").value='';
+        document.getElementById("clientLocation").value='';
+        document.getElementById("clientCapacity").value='';
+        document.getElementById("playlistName").value='';
+        showMessage("🎉 Soirée créée avec succès!","success");
+        setTimeout(()=>window.location.href="/admin.html",2000);
+    } else {
+        showMessage("Erreur lors de la création","error");
+    }
+}
+
+function showMessage(text,type){
+    const div = document.getElementById('message');
+    div.textContent=text;
+    div.className=`message ${type}`;
+    div.style.display='block';
+    setTimeout(()=>{div.style.display='none';},3000);
+}
+</script>
 </body>
 </html>

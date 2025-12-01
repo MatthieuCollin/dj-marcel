@@ -1,36 +1,84 @@
-// Stockage en mémoire pour le POC
-// Un client = une soirée avec une seule playlist
+// ---- STORE EN MÉMOIRE ----
+
+// Une soirée n’a plus de playlist interne : juste une liste d’IDs
+// Une playlist est indépendante et contient ses chansons
+
 let store = {
-  clients: [
-    { id: 1, name: "Alice Dupont", date: "2025-12-15", location: "Club Sunset", capacity: 50, playlistName: "Sunset Vibes", songs: ["Song 1", "Song 2"] },
-    { id: 2, name: "Bob Martin", date: "2025-12-22", location: "Bar Moonlight", capacity: 30, playlistName: "Moonlight Mix", songs: ["Track A"] }
-  ]
+    soirees: [
+        {
+            id: 1,
+            name: "Alice Dupont",
+            date: "2025-12-15",
+            location: "Club Sunset",
+            capacity: 50,
+            playlistIds: [1]   // Association vers des playlists
+        },
+        {
+            id: 2,
+            name: "Bob Martin",
+            date: "2025-12-22",
+            location: "Bar Moonlight",
+            capacity: 30,
+            playlistIds: [2]
+        }
+    ],
+
+    playlists: [
+        { id: 1, name: "Sunset Vibes", songs: ["Song 1", "Song 2"] },
+        { id: 2, name: "Moonlight Mix", songs: ["Track A"] }
+    ]
 };
 
-let idCounters = { clients: 3 };
-
-// CLIENTS (= SOIREES avec PLAYLISTS incluses)
-exports.getClients = () => store.clients;
-
-exports.createClient = (name, date, location, capacity, playlistName) => {
-  const client = { id: idCounters.clients++, name, date, location, capacity, playlistName, songs: [] };
-  store.clients.push(client);
-  return client;
+let idCounters = {
+    soirees: 3,
+    playlists: 3
 };
 
-exports.deleteClient = (id) => {
-  store.clients = store.clients.filter(c => c.id !== id);
+// ---- SOIREES ----
+exports.getSoirees = () => store.soirees;
+
+exports.createSoiree = (name, date, location, capacity, playlistIds) => {
+    const s = {
+        id: idCounters.soirees++,
+        name, date, location,
+        capacity,
+        playlistIds: playlistIds || []
+    };
+    store.soirees.push(s);
+    return s;
 };
 
-// PLAYLIST SONGS (gérée via le client)
-exports.addSongToPlaylist = (clientId, song) => {
-  const client = store.clients.find(c => c.id === clientId);
-  if (client) client.songs.push(song);
-  return client;
+exports.deleteSoiree = (id) => {
+    store.soirees = store.soirees.filter(s => s.id !== id);
 };
 
-exports.removeSongFromPlaylist = (clientId, index) => {
-  const client = store.clients.find(c => c.id === clientId);
-  if (client && client.songs[index]) client.songs.splice(index, 1);
-  return client;
+// ---- PLAYLISTS ----
+exports.getPlaylists = () => store.playlists;
+
+exports.createPlaylist = (name) => {
+    const p = { id: idCounters.playlists++, name, songs: [] };
+    store.playlists.push(p);
+    return p;
+};
+
+exports.addSong = (playlistId, song) => {
+    const playlist = store.playlists.find(p => p.id === playlistId);
+    if (playlist) playlist.songs.push(song);
+    return playlist;
+};
+
+exports.removeSong = (playlistId, index) => {
+    const playlist = store.playlists.find(p => p.id === playlistId);
+    if (playlist && playlist.songs[index])
+        playlist.songs.splice(index, 1);
+    return playlist;
+};
+
+// Associer une playlist à une soirée
+exports.attachPlaylist = (soireeId, playlistId) => {
+    const s = store.soirees.find(s => s.id === soireeId);
+    if (!s) return null;
+    if (!s.playlistIds.includes(playlistId))
+        s.playlistIds.push(playlistId);
+    return s;
 };
