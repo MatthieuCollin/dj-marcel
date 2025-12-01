@@ -6,131 +6,38 @@ const store = require('./data/store');
 const app = express();
 const PORT = 3000;
 
-// Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ==================== API ROUTES ====================
-
-// GET all parties
-app.get('/api/soirees', (req, res) => {
-  const soirees = store.getSoirees().map(s => ({
-    ...s,
-    clientsCount: s.reservations.length,
-    availableSpots: s.capacity - s.reservations.length
-  }));
-  res.json(soirees);
+// CLIENTS (= SOIREES avec PLAYLISTS incluses)
+app.get('/api/clients', (req, res) => res.json(store.getClients()));
+app.post('/api/clients', (req, res) => {
+  const { name, date, location, capacity, playlistName } = req.body;
+  if (!name || !date || !location || !capacity || !playlistName) 
+    return res.status(400).json({ error: 'Missing fields' });
+  res.json(store.createClient(name, date, location, parseInt(capacity), playlistName));
+});
+app.delete('/api/clients/:id', (req, res) => {
+  store.deleteClient(parseInt(req.params.id));
+  res.json({ success: true });
 });
 
-// GET all clients
-app.get('/api/clients', (req, res) => {
-  res.json(store.getClients());
+// PLAYLIST SONGS
+app.post('/api/clients/:id/songs', (req, res) => {
+  const { song } = req.body;
+  if (!song) return res.status(400).json({ error: 'Missing song' });
+  const client = store.addSongToPlaylist(parseInt(req.params.id), song);
+  if (!client) return res.status(404).json({ error: 'Not found' });
+  res.json(client);
+});
+app.delete('/api/clients/:id/songs/:index', (req, res) => {
+  const client = store.removeSongFromPlaylist(parseInt(req.params.id), parseInt(req.params.index));
+  if (!client) return res.status(404).json({ error: 'Not found' });
+  res.json(client);
 });
 
-// GET all playlists
-app.get('/api/playlists', (req, res) => {
-  res.json(store.getPlaylists());
-});
+// PAGES
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'views', 'index.html')));
 
-// GET playlist for a specific party
-app.get('/api/soirees/:id/playlist', (req, res) => {
-  const playlist = store.getPlaylistBySoiree(req.params.id);
-  if (!playlist) {
-    return res.status(404).json({ error: 'Playlist not found' });
-  }
-  res.json(playlist);
-});
-
-// GET details of one party with client info
-app.get('/api/soirees/:id', (req, res) => {
-  const soiree = store.getSoiree(req.params.id);
-  if (!soiree) {
-    return res.status(404).json({ error: 'Party not found' });
-  }
-  
-  const clients = store.getClients();
-  const reservedClients = soiree.reservations.map(clientId => 
-    clients.find(c => c.id === clientId)
-  );
-  
-  res.json({
-    ...soiree,
-    reservedClients,
-    availableSpots: soiree.capacity - soiree.reservations.length
-  });
-});
-
-// POST - Add a reservation
-app.post('/api/soirees/:soireeId/reserve', (req, res) => {
-  const { clientId } = req.body;
-  const result = store.addReservation(parseInt(req.params.soireeId), parseInt(clientId));
-  
-  if (result.error) {
-    return res.status(400).json(result);
-  }
-  
-  res.json({ success: true, message: 'Reservation added', soiree: result });
-});
-
-// POST - Remove a reservation
-app.post('/api/soirees/:soireeId/cancel', (req, res) => {
-  const { clientId } = req.body;
-  const result = store.removeReservation(parseInt(req.params.soireeId), parseInt(clientId));
-  
-  if (!result) {
-    return res.status(404).json({ error: 'Party not found' });
-  }
-  
-  res.json({ success: true, message: 'Reservation cancelled', soiree: result });
-});
-
-// POST - Create a new party
-app.post('/api/soirees', (req, res) => {
-  const { date, location, capacity } = req.body;
-  
-  if (!date || !location || !capacity) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-  
-  const soiree = store.createSoiree(date, location, parseInt(capacity));
-  const playlist = store.createPlaylist(soiree.id, `Playlist - ${location}`);
-  
-  res.json({ success: true, soiree, playlist });
-});
-
-// PUT - Update playlist songs
-app.put('/api/playlists/:id', (req, res) => {
-  const { songs } = req.body;
-  
-  if (!Array.isArray(songs)) {
-    return res.status(400).json({ error: 'Songs must be an array' });
-  }
-  
-  const playlist = store.updatePlaylist(parseInt(req.params.id), songs);
-  
-  if (!playlist) {
-    return res.status(404).json({ error: 'Playlist not found' });
-  }
-  
-  res.json({ success: true, playlist });
-});
-
-// ==================== PAGE ROUTES ====================
-
-// Page d'accueil - Réservations clients
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'client.html'));
-});
-
-// Page DJ Marcel - Gestion des soirées et playlists
-app.get('/dj', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'dj.html'));
-});
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`🎉 DJ Marcel POC running at http://localhost:${PORT}`);
-  console.log(`📝 Client page: http://localhost:${PORT}/`);
-  console.log(`🎧 DJ page: http://localhost:${PORT}/dj`);
-});
+app.listen(PORT, () => console.log(`DJ Marcel running at http://localhost:${PORT}`));

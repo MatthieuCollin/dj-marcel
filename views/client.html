@@ -241,6 +241,21 @@
             
             <div id="message" class="message"></div>
             
+            <div style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #f0f0f0;">
+                <h3 style="color: #667eea; margin-bottom: 15px; font-size: 1.2em;">➕ Créer un nouveau profil</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end;">
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9em;">Nom</label>
+                        <input type="text" id="newClientName" placeholder="Ex: Jean Dupont" class="client-select" style="margin: 0;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9em;">Email</label>
+                        <input type="email" id="newClientEmail" placeholder="jean@example.com" class="client-select" style="margin: 0;">
+                    </div>
+                    <button class="btn btn-primary" onclick="createNewClient()" style="width: auto; padding: 10px 25px;">Créer</button>
+                </div>
+            </div>
+            
             <div style="margin-bottom: 20px;">
                 <label for="clientSelect" style="display: block; margin-bottom: 8px; font-weight: 600;">
                     Sélectionnez votre nom :
@@ -396,6 +411,38 @@
                 }
             } catch (error) {
                 showMessage('Erreur lors de l\'annulation', 'error');
+                console.error(error);
+            }
+        }
+        
+        async function createNewClient() {
+            const name = document.getElementById('newClientName').value.trim();
+            const email = document.getElementById('newClientEmail').value.trim();
+            
+            if (!name || !email) {
+                showMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/clients', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showMessage(`✓ Profil créé pour ${name}!`, 'success');
+                    document.getElementById('newClientName').value = '';
+                    document.getElementById('newClientEmail').value = '';
+                    loadData();
+                } else {
+                    showMessage(`Erreur: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage('Erreur lors de la création', 'error');
                 console.error(error);
             }
         }

@@ -325,6 +325,21 @@
             
             <div id="message" class="message"></div>
             
+            <div style="margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #f0f0f0;">
+                <h3 style="color: #f5576c; margin-bottom: 15px; font-size: 1.2em;">➕ Ajouter un client</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end;">
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9em;">Nom</label>
+                        <input type="text" id="djNewClientName" placeholder="Ex: Marie Durand" class="client-select" style="margin: 0;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.9em;">Email</label>
+                        <input type="email" id="djNewClientEmail" placeholder="marie@example.com" class="client-select" style="margin: 0;">
+                    </div>
+                    <button class="btn btn-primary" onclick="createClientFromDJ()" style="width: auto; padding: 10px 25px;">Créer</button>
+                </div>
+            </div>
+            
             <div id="soirees" class="soirees-container">
                 <div class="loading">
                     <div class="spinner"></div>
@@ -487,6 +502,38 @@
                 }
             } catch (error) {
                 showMessage('Erreur lors de la suppression', 'error');
+                console.error(error);
+            }
+        }
+        
+        async function createClientFromDJ() {
+            const name = document.getElementById('djNewClientName').value.trim();
+            const email = document.getElementById('djNewClientEmail').value.trim();
+            
+            if (!name || !email) {
+                showMessage('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/clients', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    showMessage(`✓ Client ${name} créé!`, 'success');
+                    document.getElementById('djNewClientName').value = '';
+                    document.getElementById('djNewClientEmail').value = '';
+                    loadData();
+                } else {
+                    showMessage(`Erreur: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showMessage('Erreur lors de la création', 'error');
                 console.error(error);
             }
         }
