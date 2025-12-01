@@ -39,5 +39,9 @@ app.delete('/api/clients/:id/songs/:index', (req, res) => {
 
 // PAGES
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'views', 'index.html')));
+app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'views', 'admin.html')));
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'views', 'admin.html')));
+app.get('/client.html', (req, res) => res.sendFile(path.join(__dirname, 'views', 'client.html')));
+app.get('/client', (req, res) => res.sendFile(path.join(__dirname, 'views', 'client.html')));
 
 app.listen(PORT, () => console.log(`DJ Marcel running at http://localhost:${PORT}`));
