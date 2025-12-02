@@ -1,0 +1,26 @@
+services:
+  soiree:
+    build: ./1-soiree
+    networks:
+      - marcel-network
+    container_name: dj-marcel-soiree
+    ports:
+      - "3000:3000"
+  playlist:
+    build: ./2-playlist
+    networks:
+      - marcel-network
+    container_name: dj-marcel-playlist
+    ports:
+      - "3001:3001"
+  front:
+    build: ./3-front
+    networks:
+      - marcel-network
+    container_name: dj-marcel-front
+    ports:
+      - "3002:3002"
+
+networks:
+  marcel-network:
+    driver: bridge
