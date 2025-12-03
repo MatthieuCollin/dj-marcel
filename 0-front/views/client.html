@@ -106,15 +106,15 @@ async function createClient() {
     const date = document.getElementById("clientDate").value;
     const location = document.getElementById("clientLocation").value;
     const capacity = document.getElementById("clientCapacity").value;
-    const playlistName = document.getElementById("playlistName").value;
-    if (!name || !date || !location || !capacity || !playlistName) {
+    const playlistIds = document.getElementById("playlistName").value;
+    if (!name || !date || !location || !capacity || !playlistIds) {
         showMessage("Complétez tous les champs","error");
         return;
     }
-    const res = await fetch("/api/clients", {
+    const res = await fetch("http://localhost:3000/api/soirees", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ name, date, location, capacity: parseInt(capacity), playlistName })
+        body: JSON.stringify({ name, date, location, capacity: parseInt(capacity), playlistIds })
     });
     if (res.ok) {
         document.getElementById("clientName").value='';

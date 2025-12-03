@@ -1,4 +1,12 @@
 services:
+  consul:
+    container_name: consul
+    image: hashicorp/consul:latest
+    command: "consul agent -server -bootstrap-expect=1 -ui -client=0.0.0.0 -data-dir=/consul/data"
+    networks:
+      - marcel-network
+    ports:
+      - "8500:8500"
   soiree:
     build: ./1-soiree
     networks:
@@ -14,7 +22,7 @@ services:
     ports:
       - "3001:3001"
   front:
-    build: ./3-front
+    build: ./0-front
     networks:
       - marcel-network
     container_name: dj-marcel-front

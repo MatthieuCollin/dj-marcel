@@ -1,9 +1,11 @@
+const Consul = require('consul');
 const cors = require('cors');
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const store = require('./data/store');
 
+const consul = new Consul({host: 'consul'});
 const app = express();
 const PORT = 3000;
 
@@ -12,13 +14,40 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+const CONSUL_SERVICE_NAME = 'playlist-api';
+const CONSUL_SERVICE_ID = `${CONSUL_SERVICE_NAME}-${Math.floor(Math.random() * 1000)}`;
+const LISTEN_PORT = 3001; 
+
 // ---- SOIREES ----
 app.get('/api/soirees', (req, res) => res.json(store.getSoirees()));
 
-app.post('/api/soirees', (req, res) => {
+app.post('/api/soirees', async (req, res) => {
   const { name, date, location, capacity, playlistIds } = req.body;
+
+  let playlists = await fetch('http://playlist:3001/api/playlists').catch(e => console.log(e) );
+  playlists = await playlists.json();
+  const playlist = playlists.find(playlist => playlist.name === playlistIds);
+  if(!playlist) return res.status(404).json({message : "Playlist non trouvée"});
   res.json(store.createSoiree(name, date, location, capacity, playlistIds));
+  
 });
+
+const networkAddress = os.networkInterfaces();
+const container_ip = networkAddress['eth0'][0].address;
+const registerService = async () => {
+  try {
+    await consul.agent.service.register({
+      name: CONSUL_SERVICE_NAME,
+      id: CONSUL_SERVICE_ID,
+      port: LISTEN_PORT,
+      address: container_ip
+    });
+    console.log(`Service registered with consul at ${container_ip}:${LISTEN_PORT}`);
+  } catch (err) {
+    console.error(`Error deregistering service from Consul;`, err);
+    process.exit(1);
+  }
+};
 
 app.delete('/api/soirees/:id', (req, res) => {
   store.deleteSoiree(parseInt(req.params.id));

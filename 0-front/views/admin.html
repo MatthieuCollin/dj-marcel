@@ -151,7 +151,7 @@ button.delete-btn:hover { background: #c0392b; }
 setInterval(load,2000);
 
 async function load(){
-    const clients = await (await fetch('/api/clients')).json();
+    const clients = await (await fetch(`http://localhost:3000/api/soirees`)).json();
     loadClients(clients);
     loadSelectClient(clients);
 }
@@ -170,10 +170,7 @@ function loadClients(clients){
                 <div><strong>Capacité:</strong> ${c.capacity} places</div>
             </div>
             <div class="playlist-section">
-                <strong>🎵 ${c.playlistName}</strong>
-                <div class="songs-list" id="songs-${c.id}">
-                    ${c.songs.map((s,i)=>`<div class="song-item">${s} <button onclick="removeSong(${c.id}, ${i})">✕</button></div>`).join('')}
-                </div>
+                <strong>🎵 ${c.playlistIds}</strong>
             </div>
             <button class="delete-btn" onclick="deleteClient(${c.id})">Supprimer soirée</button>
         `;
