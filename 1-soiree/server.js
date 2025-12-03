@@ -26,7 +26,12 @@ const registerService = async () => {
       name: CONSUL_SERVICE_NAME,
       id: CONSUL_SERVICE_ID,
       port: LISTEN_PORT,
-      address: container_ip
+      address: container_ip,
+      check: {
+        interval: '10s',
+        http: `/health`,
+        timeout: '10s'
+      }
     });
     console.log(`Service registered with consul at ${container_ip}:${LISTEN_PORT}`);
   } catch (err) {
@@ -59,6 +64,8 @@ app.post('/api/soirees', async (req, res) => {
   res.json(store.createSoiree(name, date, location, capacity, playlistIds));
   
 });
+
+app.get('/health', (req, res) => res.status(200).send());
 
 app.delete('/api/soirees/:id', (req, res) => {
   store.deleteSoiree(parseInt(req.params.id));
