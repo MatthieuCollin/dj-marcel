@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const store = require('./data/store');
+const os = require('os');
 
 const consul = new Consul({host: 'consul'});
 const app = express();
