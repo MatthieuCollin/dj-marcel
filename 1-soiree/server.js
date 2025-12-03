@@ -51,6 +51,9 @@ const deregisterService = async () => {
   }
 };
 
+process.on('SIGINT', deregisterService);
+process.on('SIGTERM', deregisterService);
+
 // ---- SOIREES ----
 app.get('/api/soirees', (req, res) => res.json(store.getSoirees()));
 
