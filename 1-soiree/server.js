@@ -30,7 +30,7 @@ const registerService = async () => {
       address: container_ip,
       check: {
         interval: '10s',
-        http: `/health`,
+        http: `https://${container_ip}:${LISTEN_PORT}/health`,
         timeout: '10s'
       }
     });
