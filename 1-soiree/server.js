@@ -61,7 +61,10 @@ app.get('/api/soirees', (req, res) => res.json(store.getSoirees()));
 app.post('/api/soirees', async (req, res) => {
   const { name, date, location, capacity, playlistIds } = req.body;
 
-  let playlists = await fetch('http://playlist:3001/api/playlists').catch(e => console.log(e) );
+  const instances = await consul.catalog.app.nodes(PLAYLIST_SERVICE_NAME);
+  if(instances.length === 0) return res.status(503).json({message : "Service Playlist indisponible"});
+
+  let playlists = await fetch(`http://${instances[0].ServiceAdress}:${instances[0].SericePort}/api/playlists`).catch(e => console.log(e) );
   playlists = await playlists.json();
   const playlist = playlists.find(playlist => playlist.name === playlistIds);
   if(!playlist) return res.status(404).json({message : "Playlist non trouvée"});
